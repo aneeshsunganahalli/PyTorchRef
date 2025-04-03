@@ -64,7 +64,13 @@ optimizer = torch.optim.SGD(params= model0.parameters(),
                             lr= 0.01) # learning rate (very imp hyperparameter)
 
 # Epoch is a loop
-epochs = 1
+epochs = 60
+
+# Track Values
+epoch_count = []
+loss_values = []
+test_loss_values = []
+
 # Loop through data
 for epoch in range(epochs):
   model0.train()
@@ -73,7 +79,8 @@ for epoch in range(epochs):
   y_pred = model0(XTrain)
 
   # Calculate Loss
-  loss = nn.L1Loss(y_pred, YTrain)
+  loss = loss_fn(y_pred, YTrain)
+  print(f"Loss: {loss}")
 
   # Optimizer zero grad
   optimizer.zero_grad()
@@ -85,3 +92,57 @@ for epoch in range(epochs):
   optimizer.step()
 
   model0.eval()
+  with torch.inference_mode():
+    test_pred = model0(XTrain)
+
+    testLoss = loss_fn(test_pred, YTrain)
+    if epoch % 10 == 0:
+      epoch_count.append(epoch)
+      loss_values.append(loss)
+      test_loss_values.append(testLoss)
+      print(f"Epoch: {epoch} | Loss: {loss} | Test loss: {testLoss}")
+      print(model0.state_dict())
+  print(model0.state_dict())
+
+import numpy as np
+plt.plot(epoch_count, np.array(torch.tensor(loss_values).numpy()), label="Train loss")
+plt.plot(epoch_count, test_loss_values, label="Test loss")
+plt.title("Training and test loss curves")
+plt.ylabel("Loss")
+plt.xlabel("Epochs")
+plt.legend();
+
+with torch.inference_mode():
+  y_preds_new = model0(XTrain)
+
+model0.state_dict()
+
+from pathlib import Path
+
+MODEL_PATH = Path("models")
+MODEL_PATH.mkdir(parents=True, exist_ok=True)
+
+MODEL_NAME = "01PyTorch.pth"
+MODEL_SAVE_PATH = MODEL_PATH / MODEL_NAME
+
+MODEL_SAVE_PATH
+
+print(f"Saving model to : {MODEL_SAVE_PATH}")
+torch.save(obj=model0.state_dict(), f=MODEL_SAVE_PATH)
+
+!ls -l models
+
+loaded_model = LinearRegressionModel()
+loaded_model.load_state_dict(torch.load(f=MODEL_SAVE_PATH))
+
+loaded_model.state_dict()
+
+import torch
+from torch import nn
+import matplotlib.pyplot as plt
+
+torch.__version__
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+print(device)
+
