@@ -100,8 +100,6 @@ for epoch in range(epochs):
 
 model1.state_dict()
 
-weight, bias
-
 plot_predictions(X_train, y_train, X_test, y_test)
 
 model1.eval()
@@ -112,6 +110,7 @@ y_preds
 
 plot_predictions(predictions=y_preds)
 
+# Saving and Loading State Dict of Model
 from pathlib import Path
 
 MODEL_PATH = Path("models")
@@ -134,3 +133,5 @@ loaded_model.eval()
 with torch.inference_mode():
   loaded_preds = loaded_model(X_test)
 loaded_preds == y_preds
+
+# If done correctly should return only True
