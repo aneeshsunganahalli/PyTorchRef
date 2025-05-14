@@ -39,3 +39,13 @@ original_df = data_df.copy()
 for column in data_df.columns:
   data_df[column] = data_df[column] / data_df[column].abs().max()
 
+X = np.array(data_df.iloc[:, :-1])
+Y = np.array(data_df.iloc[:, -1])
+
+X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3)
+X_test, X_val, y_test, y_val = train_test_split(X_test, y_test, test_size=0.5)
+
+print("Training set is: ", X_train.shape[0], " rows which is ", round(X_train.shape[0]/data_df.shape[0],4)*100, "%") # Print training shape
+print("Validation set is: ",X_val.shape[0], " rows which is ", round(X_val.shape[0]/data_df.shape[0],4)*100, "%") # Print validation shape
+print("Testing set is: ",X_test.shape[0], " rows which is ", round(X_test.shape[0]/data_df.shape[0],4)*100, "%") # Print testing shape
+
