@@ -49,3 +49,46 @@ print("Training set is: ", X_train.shape[0], " rows which is ", round(X_train.sh
 print("Validation set is: ",X_val.shape[0], " rows which is ", round(X_val.shape[0]/data_df.shape[0],4)*100, "%") # Print validation shape
 print("Testing set is: ",X_test.shape[0], " rows which is ", round(X_test.shape[0]/data_df.shape[0],4)*100, "%") # Print testing shape
 
+# Converting datasets in torch tensor to imporve efficiency, inherting the Dataset class
+class dataset(Dataset):
+  def __init__(self, X, Y):   # Takes the inputs and the outputs
+    self.X = torch.tensor(X, dtype=torch.float32).to(device)
+    self.Y = torch.tensor(Y, dtype=torch.float32).to(device)
+
+  def __len__(self):
+    return len(self.X)
+  def __getitem__(self, index):
+    return self.X[index], self.Y[index]
+
+training_data = dataset(X_train, y_train)
+validation_data = dataset(X_val, y_val)
+testing_data = dataset(X_test, y_test)
+
+# Data Loaders handling batching(training in small chunks) and shuffling(Rearranges order of batches) to increase effciency
+train_dataloader = DataLoader(training_data, batch_size= 8, shuffle = True)
+validation_dataloader = DataLoader(validation_data, batch_size= 8, shuffle = True)
+testing_dataloader = DataLoader(testing_data, batch_size= 8, shuffle = True)
+
+HIDDEN_NEURONS = 10
+class MyModel(nn.Module):
+  def __init__(self):
+    super(MyModel, self).__init__()
+
+    self.input_layer = nn.Linear(X.shape[1], HIDDEN_NEURONS)
+    self.linear = nn.Linear(HIDDEN_NEURONS, 1)
+    self.sigmoid = nn.Sigmoid()
+
+  # Overring func to describe flow of data in model
+  def forward(self, x):
+    x = self.input_layer(x)
+    x = self.linear(x)    # Goes through input layer, linear layer and then sigmoid layer
+    x = self.sigmoid(x)
+    return x
+
+model = MyModel().to(device)
+
+summary(model, (X.shape[1],))
+
+criterion = nn.BCELoss() # Binary Cross Entropy Loss (loss func)
+optimizer = Adam(model.parameters(), lr= 1e-3)
+
